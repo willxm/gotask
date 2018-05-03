@@ -21,18 +21,20 @@ type TaskConfig struct {
 
 // Task ....
 type Task struct {
-	Operator     func(interface{})
+	Operator     func(interface{}) error
 	Args         []interface{}
 	WorkerChanel chan struct{}
 	Wg           *sync.WaitGroup
+	TimeOut      time.Duration
 }
 
 // NewTask ....
-func (tc *TaskConfig) NewTask(f func(interface{})) *Task {
+func (tc *TaskConfig) NewTask(f func(interface{}) error) *Task {
 	return &Task{
 		Wg:           &sync.WaitGroup{},
 		Operator:     f,
 		WorkerChanel: make(chan struct{}, tc.WorkerNum),
+		TimeOut:      tc.TimeOut,
 	}
 }
 
@@ -44,8 +46,18 @@ type Tasker interface {
 }
 
 // BuildTaskOperator ....
-func (t *Task) taskOperator(f func(interface{}), v interface{}) {
-	f(v)
+func (t *Task) taskOperator(f func(interface{}) error, v interface{}) {
+	c := make(chan error)
+	go func() {
+		result := f(v)
+		c <- result
+	}()
+	select {
+	case <-c:
+		log.Info("done")
+	case <-time.After(t.TimeOut):
+		log.Info("task timeout")
+	}
 	<-t.WorkerChanel
 	t.Wg.Done()
 }

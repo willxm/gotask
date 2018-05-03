@@ -2,19 +2,24 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/willxm/gotask"
 )
 
-func test(v interface{}) {
+func test(v interface{}) error {
+	// fmt.Println(v)
+	time.Sleep(time.Duration(rand.Float64()*1000) * time.Millisecond)
+	// time.Sleep(time.Second)
 	fmt.Println(v)
-	time.Sleep(time.Second)
+	return nil
 }
 
 func main() {
 	tf := gotask.TaskConfig{
-		WorkerNum: 6,
+		WorkerNum: 2,
+		TimeOut:   500 * time.Millisecond,
 	}
 
 	task := tf.NewTask(test)
