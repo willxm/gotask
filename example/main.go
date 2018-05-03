@@ -18,8 +18,9 @@ func test(v interface{}) error {
 
 func main() {
 	tf := gotask.TaskConfig{
-		WorkerNum: 2,
-		TimeOut:   500 * time.Millisecond,
+		WorkerNum: 8,
+		// defalt timeout is 30s
+		// Timeout:   1000 * time.Millisecond,
 	}
 
 	task := tf.NewTask(test)
@@ -29,5 +30,4 @@ func main() {
 	}
 
 	task.Run()
-
 }

@@ -16,7 +16,7 @@ func(interface{}, *sync.WaitGroup, chan struct{})
 type TaskConfig struct {
 	Handle    func(interface{})
 	WorkerNum int
-	TimeOut   time.Duration
+	Timeout   time.Duration
 }
 
 // Task ....
@@ -25,16 +25,20 @@ type Task struct {
 	Args         []interface{}
 	WorkerChanel chan struct{}
 	Wg           *sync.WaitGroup
-	TimeOut      time.Duration
+	Timeout      time.Duration
 }
 
 // NewTask ....
 func (tc *TaskConfig) NewTask(f func(interface{}) error) *Task {
+	// defalt timeout 30s
+	if tc.Timeout == 0 {
+		tc.Timeout = 30 * time.Second
+	}
 	return &Task{
 		Wg:           &sync.WaitGroup{},
 		Operator:     f,
 		WorkerChanel: make(chan struct{}, tc.WorkerNum),
-		TimeOut:      tc.TimeOut,
+		Timeout:      tc.Timeout,
 	}
 }
 
@@ -55,7 +59,7 @@ func (t *Task) taskOperator(f func(interface{}) error, v interface{}) {
 	select {
 	case <-c:
 		log.Info("done")
-	case <-time.After(t.TimeOut):
+	case <-time.After(t.Timeout):
 		log.Info("task timeout")
 	}
 	<-t.WorkerChanel
