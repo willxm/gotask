@@ -15,19 +15,25 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 
 	"github.com/willxm/gotask"
 )
 
-func test(v interface{}) {
+var test gotask.TaskHandle = func(v gotask.TaskArg) error {
+	// fmt.Println(v)
+	time.Sleep(time.Duration(rand.Float64()*1000) * time.Millisecond)
+	// time.Sleep(time.Second)
 	fmt.Println(v)
-	time.Sleep(time.Second)
+	return nil
 }
 
 func main() {
 	tf := gotask.TaskConfig{
-		WorkerNum: 10,
+		WorkerNum: 8,
+		// defalt timeout is 30s
+		// Timeout:   1000 * time.Millisecond,
 	}
 
 	task := tf.NewTask(test)
@@ -37,8 +43,8 @@ func main() {
 	}
 
 	task.Run()
-
 }
+
 ```
 
-more example in /example/main.go
+more example in /example

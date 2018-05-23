@@ -9,8 +9,11 @@ import (
 
 /*
 task func must be is type
-func(interface{}, *sync.WaitGroup, chan struct{})
+func(interface{}) error
 */
+
+type TaskArg interface{}
+type TaskHandle func(TaskArg) error
 
 // TaskConfig ....
 type TaskConfig struct {
@@ -21,7 +24,7 @@ type TaskConfig struct {
 
 // Task ....
 type Task struct {
-	Operator     func(interface{}) error
+	Operator     func(TaskArg) error
 	Args         []interface{}
 	WorkerChanel chan struct{}
 	Wg           *sync.WaitGroup
@@ -29,7 +32,7 @@ type Task struct {
 }
 
 // NewTask ....
-func (tc *TaskConfig) NewTask(f func(interface{}) error) *Task {
+func (tc *TaskConfig) NewTask(f TaskHandle) *Task {
 	// defalt timeout 30s
 	if tc.Timeout == 0 {
 		tc.Timeout = 30 * time.Second
@@ -50,7 +53,7 @@ type Tasker interface {
 }
 
 // BuildTaskOperator ....
-func (t *Task) taskOperator(f func(interface{}) error, v interface{}) {
+func (t *Task) taskOperator(f TaskHandle, v TaskArg) {
 	c := make(chan error)
 	go func() {
 		result := f(v)
