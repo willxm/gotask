@@ -8,7 +8,7 @@ import (
 	"github.com/willxm/gotask"
 )
 
-func test(v interface{}) error {
+var test gotask.TaskHandle = func(v gotask.TaskArg) error {
 	// fmt.Println(v)
 	time.Sleep(time.Duration(rand.Float64()*1000) * time.Millisecond)
 	// time.Sleep(time.Second)
