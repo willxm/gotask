@@ -1,6 +1,7 @@
 package gotask
 
 import (
+	"runtime"
 	"sync"
 	"time"
 
@@ -36,6 +37,9 @@ func (tc *TaskConfig) NewTask(f TaskHandle) *Task {
 	// defalt timeout 30s
 	if tc.Timeout == 0 {
 		tc.Timeout = 30 * time.Second
+	}
+	if tc.WorkerNum == 0 {
+		tc.WorkerNum = runtime.NumCPU()
 	}
 	return &Task{
 		Wg:           &sync.WaitGroup{},
