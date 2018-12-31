@@ -1,7 +1,6 @@
 package gotask
 
 import (
-	"fmt"
 	"runtime"
 	"sync"
 	"time"
@@ -86,11 +85,11 @@ func (t *Task) Run() {
 	log.Info("start")
 	log.Info("total tasks: ", len(t.Args))
 	log.Info("task build...")
-	for k, v := range t.Args {
+	for _, v := range t.Args {
 		t.Wg.Add(1)
 		t.WorkerChanel <- struct{}{}
 		go t.taskOperator(t.Operator, v)
-		fmt.Printf("\f%s%d%%", Bar(k, 20), k)
+		// fmt.Printf("\f%s%d%%", Bar(k, 20), k)
 	}
 	t.Wg.Wait()
 	log.Info("ok")
